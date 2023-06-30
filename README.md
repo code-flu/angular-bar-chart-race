@@ -12,8 +12,8 @@ Angular application that implements a bar chart race using the D3.js library. Th
 - Responsive design to adapt to different screen sizes.
 
 ## How to run on local machine
-1. Clone the repository: `git clone https://github.com/code-flu/angular-bar-char-race.git`
-2. Navigate to the project directory: `cd angular-bar-char-race`
+1. Clone the repository: `git clone https://github.com/code-flu/angular-bar-chart-race.git`
+2. Navigate to the project directory: `cd angular-bar-chart-race`
 3. Install project dependencies : `npm install`
 4. Start the server: `ng serve`
 
