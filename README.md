@@ -1,4 +1,4 @@
-![](https://github.com/[code-flu]/[angular-bar-chart-race]/blob/main/image.jpg?raw=true)
+![screen shot](https://github.com/code-flu/angular-bar-char-race/blob/main/src/assets/data/example.png?raw=true)
 # Angular Bar Char Race
 Angular application that implements a bar chart race using the D3.js library. The bar chart race is a dynamic visualization that displays the change in rankings of a set of categories over time through animated bars.
 
