@@ -17,7 +17,7 @@ Angular application that implements a bar chart race using the D3.js library. Th
 3. Install project dependencies : `npm install`
 4. Start the server: `ng serve`
 
-> [LIVE DEMO](https://angular-bar-chart-race.stackblitz.io)
+> [LIVE DEMO](https://stackblitz.com/edit/angular-bar-chart-race?file=src%2Fmain.ts)
 
 #### Watch the YouTube videos created using this repository
 - [Most Nuclear Weapons Countries (1945-2022)
