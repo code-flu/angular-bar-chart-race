@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
     const barSize: number = 48; // height of the bars
     const n: number = 12; // number of bars in race
     const k: number = 10; // DO NOT UPDATE
-    const duration: number =10;
+    const duration: number =250;
     const height: number = margin.top + barSize * n + margin.bottom;
 
     // load csv and init data
