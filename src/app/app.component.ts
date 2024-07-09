@@ -3,7 +3,15 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-root',
-  template: `<div id="chart" class="w-100 h-100" #chart></div>`
+  template: `
+  <div class="text-center d-flex align-items-center justify-content-center mt-4">
+    <span class="fs-1 fw-bold pb-2 title"
+          style="background: linear-gradient(to right, #f37d17 0%, #fbd735 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          &nbsp; 1 USD vs. Weakest Currency
+    </span>
+  </div>
+  <div id="chart" class="w-100 h-100" #chart></div>
+  `
 })
 export class AppComponent implements OnInit {
 
@@ -14,15 +22,15 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     const chartElement: HTMLElement = this.myElementRef.nativeElement;
     const width: number = chartElement.offsetWidth;
-    const margin = { top: 16, right: 6, bottom: 6, left: 0 };
+    const margin = { top: 16, right: 200, bottom: 6, left: 100 };
     const barSize: number = 48; // height of the bars
     const n: number = 12; // number of bars in race
     const k: number = 10; // DO NOT UPDATE
     const duration: number =250;
     const height: number = margin.top + barSize * n + margin.bottom;
 
-    // load csv and init data
-    d3.csv('assets/data/brands.csv').then((data: any) => {
+    // load json and init data
+    d3.json('assets/data/data.json').then((data: any) => {
       this.draw(
         data,
         chartElement,
@@ -69,6 +77,8 @@ export class AppComponent implements OnInit {
       .map(([date, data]: any) => [new Date(date), data])
       .sort(([a]: any, [b]: any) => d3.ascending(a, b));
 
+    const images = new Map(data.map((d: any) => [d.name, `assets/images/${d.image}`]));
+    const codes = new Map(data.map((d: any) => [d.name, d.code]));
     const usedColors = new Set<string>();
     const nameframes = d3.groups(
       keyframe().flatMap(([, data]: any) => data),
@@ -81,6 +91,7 @@ export class AppComponent implements OnInit {
     const svg = d3.create('svg').attr('viewBox', [0, 0, width, height]);
     const updateBars = bars(svg);
     const updateAxis = axis(svg);
+    const updateImages_l = images_left(svg);
     const updateLabels = labels(svg);
     const updateTicker = ticker(svg);
     chartElement.appendChild(svg.node()!);
@@ -95,6 +106,7 @@ export class AppComponent implements OnInit {
       x.domain([0, keyframe[1][0].value]);
       updateAxis(keyframe, transition);
       updateBars(keyframe, transition);
+      updateImages_l(keyframe, transition);
       updateLabels(keyframe, transition);
       updateTicker(keyframe, transition);
       await transition.end();
@@ -104,6 +116,8 @@ export class AppComponent implements OnInit {
       const data: any = Array.from(names, (name) => ({
         name,
         value: value(name),
+        code: codes.get(name),
+        image: images.get(name)
       }));
       data.sort((a: any, b: any) => d3.descending(a.value, b.value));
       for (let i = 0; i < data.length; ++i) data[i].rank = Math.min(n, i);
@@ -158,12 +172,32 @@ export class AppComponent implements OnInit {
         ));
     }
 
+    function images_left(svg: any) {
+      let image = svg.append("g")
+        .selectAll("image");
+
+      return ([date, data]: any, transition: any) => image = image
+        .data(data.slice(0, n), (d: any) => d.name)
+        .join(
+          (enter: any) => enter.append("svg:image")
+            .attr("xlink:href", (d: any) => d.image)
+            .attr("height", y.bandwidth())
+            .attr("transform", (d: any) => `translate(${margin.left - barSize},${y((prev.get(d) || d).rank)})`)
+            .text((d: any) => d.name),
+          (update: any) => update.attr("xlink:href", (d: any) => d.image),
+          (exit: any) => exit.transition(transition).remove()
+            .attr("transform", (d: any) => `translate(${margin.left - barSize},${y((next.get(d) || d).rank)})`)
+        )
+        .call((bar: any) => bar.transition(transition)
+          .attr("transform", (d: any) => `translate(${margin.left - barSize},${y(d.rank)})`));
+    }
+
     function labels(svg: any) {
       let label = svg
         .append('g')
         .style('font', 'bold 12px var(--bs-font-sans-serif)')
         .style('font-variant-numeric', 'tabular-nums')
-        .attr('text-anchor', 'end')
+        .attr('text-anchor', 'start') // 'end' for inside & 'start' for outside
         .selectAll('text');
 
       return ([date, data]: any, transition: any) =>
@@ -181,7 +215,8 @@ export class AppComponent implements OnInit {
                   )})`
               )
               .attr('y', y.bandwidth() / 2)
-              .attr('x', -6)
+              //.attr('x', -6) // Lables at the end & inside the bar
+              .attr("x", 2) // Lables at the end & outside the bar
               .attr('dy', '-0.25em')
               .text((d: any) => d.name)
               .call((text: any) =>
@@ -189,7 +224,8 @@ export class AppComponent implements OnInit {
                   .append('tspan')
                   .attr('fill-opacity', 0.7)
                   .attr('font-weight', 'normal')
-                  .attr('x', -6)
+                  //.attr('x', -6) // Lables at the end & inside the bar
+                  .attr("x", 2)  // Lables at the end & outside the bar
                   .attr('dy', '1.15em')
               ),
           (update: any) => update,
